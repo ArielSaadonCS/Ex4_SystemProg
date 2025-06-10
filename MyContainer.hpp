@@ -1,3 +1,5 @@
+//arielsaadon1446@gmail.com
+
 #ifndef MYCONTAINER_HPP
 #define MYCONTAINER_HPP
 
@@ -32,15 +34,22 @@ class MiddleOutOrderIterator;
  }
 
  void remove(const T &element){
+    if(elements.empty()){
+        throw std::runtime_error("cannot remove from empty container");
+    }
     auto originalSize = elements.size();
     elements.erase(std::remove(elements.begin(),elements.end(),element),elements.end());
     if(elements.size() == originalSize){
-        throw std::runtime_error("element dot found in container");
+        throw std::runtime_error("element not found in container");
     }
  }
 
  size_t size()const{
     return elements.size();
+ }
+
+ bool empty()const{
+    return elements.empty();
  }
 
  friend std::ostream& operator<<(std::ostream &os,const MyContainer &container){
@@ -78,14 +87,17 @@ class AscendingOrderIterator
 {
 private:
     std::vector<T> sorted_elements;
-    int index;
+    size_t index;
 public:
-    AscendingOrderIterator(const std::vector<T> &elements, int index):index(index){
+    AscendingOrderIterator(const std::vector<T> &elements, size_t index):index(index){
         sorted_elements = elements;
         std::sort(sorted_elements.begin(),sorted_elements.end());
     }
     
     T& operator*(){
+        if(index >= sorted_elements.size()){
+            throw std::out_of_range("index out of bounds");
+        }
         return sorted_elements[index];
     }
     AscendingOrderIterator& operator++(){
@@ -105,15 +117,18 @@ class DescendingOrderIterator
 {
 private:
     std::vector<T> sorted_elements;
-    int index;
+    size_t index;
 public:
-    DescendingOrderIterator(const std::vector<T> &elements, int index):index(index){
+    DescendingOrderIterator(const std::vector<T> &elements, size_t index):index(index){
         sorted_elements = elements;
         std::sort(sorted_elements.begin(),sorted_elements.end());
         std::reverse(sorted_elements.begin(),sorted_elements.end());
     }
     
     T& operator*(){
+        if(index >= sorted_elements.size()){
+            throw std::out_of_range("index out of bounds");
+        }
         return sorted_elements[index];
     }
     DescendingOrderIterator& operator++(){
@@ -133,20 +148,21 @@ class SideCrossOrderIterator
 {
 private:
     std::vector<T> ordered_elements;
-    int index;
+    size_t index;
 public:
-    SideCrossOrderIterator(const std::vector<T> &elements, int index):index(index){
+    SideCrossOrderIterator(const std::vector<T> &elements, size_t index):index(index){
         std::vector<T> sorted_elements = elements;
          std::sort(sorted_elements.begin(),sorted_elements.end());
 
-         int left = 0;
-         int right = sorted_elements.size()-1;
+         size_t left = 0;
+         size_t right = sorted_elements.size()-1;
          
          bool take_left =true;
          while (left<=right)
          {
             if(take_left){
                 ordered_elements.push_back(sorted_elements[left]);
+                if(left == right){break;}//for avoiding infinite loop
                 left++;
             }
             else{
@@ -159,6 +175,9 @@ public:
     }
 
     T& operator*(){
+        if(index >= ordered_elements.size()){
+            throw std::out_of_range("index out of bounds");
+        }
         return ordered_elements[index];
     }
     SideCrossOrderIterator& operator++(){
@@ -179,13 +198,17 @@ class ReverseOrderIterator
 {
 private:
     std::vector<T> elements;
-    int index;
+    size_t index;
 public:
-    ReverseOrderIterator(const std::vector<T> elements, int index):elements(elements),index(index){}
+    ReverseOrderIterator(const std::vector<T> &elements, size_t index):elements(elements),index(index){}
 
     T& operator*(){
+        if(index >= elements.size()){
+            throw std::out_of_range("index out of bounds");
+        }
         return const_cast<T&>(elements[elements.size()-1-index]);
     }
+
     ReverseOrderIterator& operator++(){
         index++;
         return *this;
@@ -204,11 +227,14 @@ class OrderIterator
 {
 private:
     std::vector<T> elements;
-    int index;
+    size_t index;
 public:
-    OrderIterator(const std::vector<T> elements, int index):elements(elements),index(index){}
+    OrderIterator(const std::vector<T> &elements, size_t index):elements(elements),index(index){}
 
     T& operator*(){
+        if(index >= elements.size()){
+            throw std::out_of_range("index out of bounds");
+        }
         return const_cast<T&>(elements[index]);
     }
     OrderIterator& operator++(){
@@ -228,12 +254,12 @@ class MiddleOutOrderIterator
 {
 private:
     std::vector<T> ordered_elements;
-    int index;
+    size_t index;
 public:
-    MiddleOutOrderIterator(const std::vector<T> elements, int index):index(index){
+    MiddleOutOrderIterator(const std::vector<T> &elements, size_t index):index(index){
         if(elements.empty()){return;}
 
-        int mid = elements.size()/2;
+        size_t mid = elements.size()/2;
         ordered_elements.push_back(elements[mid]);
 
         int left = mid-1;
@@ -255,6 +281,9 @@ public:
     }
 
     T& operator*(){
+        if(index >= ordered_elements.size()){
+            throw std::out_of_range("index out of bounds");
+        }
         return ordered_elements[index];
     }
     MiddleOutOrderIterator& operator++(){
